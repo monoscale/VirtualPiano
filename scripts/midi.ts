@@ -1,5 +1,7 @@
 const selectBox = <HTMLSelectElement>document.getElementById('midi-select');
 
+const notes = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'];
+
 let midiInputPorts: MIDIInput[] = [];
 let selectedMidiInputPort: MIDIInput;
 
@@ -9,25 +11,17 @@ window.onload = function () {
     /* https://www.w3.org/TR/webmidi/#requestmidiaccess */
     navigator.requestMIDIAccess()
         .then(requestMIDIAccessResolve, requestMIDIAccessReject);
+
+    selectBox.onchange = selectMIDIInputPort;
 }
 
 /* https://www.w3.org/TR/webmidi/#midiaccess-interface */
 function requestMIDIAccessResolve(midiAccess: MIDIAccess) {
     let midiInputs: MIDIInputMap = midiAccess.inputs;
-    midiInputs.forEach(function(input: MIDIInput){
+    midiInputs.forEach(function (input: MIDIInput) {
         midiInputPorts.push(input);
     });
-
-
     updateMIDISelectBox();
-
-    /**
-     * The handler called when a new port is connected or an existing port changes the state attribute.
-     */
-    midiAccess.onstatechange = function (midiConnectionEvent) {
-    }
-
-
 }
 
 function requestMIDIAccessReject(exception) {
@@ -49,10 +43,15 @@ function updateMIDISelectBox() {
         selectBox.appendChild(option);
     }
     selectBox.selectedIndex = 0;
+    selectMIDIInputPort();
 }
 
 function selectMIDIInputPort() {
     selectedMidiInputPort = midiInputPorts[selectBox.selectedIndex];
+    selectedMidiInputPort.onmidimessage = function(e: MIDIMessageEvent) {
+        let noteValue = notes[e.data[1] % 12];
+        console.log(noteValue);
+    }
 }
 
 export { };
