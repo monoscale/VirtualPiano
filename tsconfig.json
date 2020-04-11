@@ -1,0 +1,15 @@
+{
+    "compilerOptions": {
+        "target": "ES5",
+        "module": "ES2015",
+        "removeComments": true,
+        "lib": [
+            "ES2015",
+            "DOM"
+        ]
+    },
+    "files": [
+        "scripts/midi.ts",
+        "scripts/types.ts"
+    ]
+}
