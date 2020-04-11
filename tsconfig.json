@@ -6,10 +6,16 @@
         "lib": [
             "ES2015",
             "DOM"
+        ],
+        "typeRoots": [
+            "./node_modules/@types"
+        ],
+        "types": [
+            "webmidi",
+            "audio-context"
         ]
     },
     "files": [
         "scripts/midi.ts",
-        "scripts/types.ts"
     ]
 }
