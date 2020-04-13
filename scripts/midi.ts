@@ -3,8 +3,9 @@
 
 class VirtualPiano {
     /* HTML BINDINGS */
-    private selectMIDIDeviceBox = <HTMLSelectElement>document.getElementById('midi-select');
-    private selectBendRangeBox = <HTMLSelectElement>document.getElementById('midi-bend-range');
+    private selectMIDIDeviceBox = <HTMLSelectElement>document.getElementById('select-midi');
+    private selectBendRangeBox = <HTMLSelectElement>document.getElementById('select-bend-range');
+    private selectOscillatorWaveformBox = <HTMLSelectElement>document.getElementById('select-oscillator-waveform');
 
     private bendRange = 2 * 128; // 2 semitones
 
@@ -36,6 +37,11 @@ class VirtualPiano {
         this.updateMIDISelectBox();
         this.selectMIDIDeviceBox.onchange = () => this.selectMIDIInputPort(); // the user must first interact with the site to allow an audioContext to be created, we achieve this by forcing the user to select a MIDI input device
         this.selectBendRangeBox.onchange = () => this.setBendRange();
+        this.selectOscillatorWaveformBox.onchange = () => this.setWaveForm();
+    }
+
+    private setWaveForm(): void {
+        this.oscillator.type = <OscillatorType> this.selectOscillatorWaveformBox.value;
     }
 
     /**
@@ -50,10 +56,13 @@ class VirtualPiano {
         this.bendRange = parseInt(this.selectBendRangeBox.value) * 128;
     }
     private selectMIDIInputPort(): void {
+
+
         console.log(this.audioContext);
         if (this.audioContext == null) {
             this.audioContext = new AudioContext();
             this.oscillator = this.audioContext.createOscillator();
+            this.oscillator.type = <OscillatorType>this.selectOscillatorWaveformBox.value;
             this.oscillator.start(0);
         }
 

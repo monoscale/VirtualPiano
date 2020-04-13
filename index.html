@@ -8,9 +8,9 @@
 </head>
 
 <body>
-    Select MIDI input: <select id="midi-select"></select>
-    Bend range: 
-    <select id="midi-bend-range">
+    Select MIDI input: <select id="select-midi"></select>
+    Bend range:
+    <select id="select-bend-range">
         <option value="0">0</option>
         <option value="1">1</option>
         <option value="2" selected>2</option>
@@ -24,6 +24,13 @@
         <option value="10">10</option>
         <option value="11">11</option>
         <option value="12">12</option>
+    </select>
+    <br>
+    Oscillator configuration: <select id="select-oscillator-waveform">
+        <option value="sine">sine</option>
+        <option value="sawtooth">sawtooth</option>
+        <option value="square">square</option>
+        <option value="triangle">triangle</option>
     </select>
     <script src="scripts/midi.js"></script>
 </body>
