@@ -43,12 +43,18 @@ var VirtualPiano = (function () {
             this.mainVolume = this.audioContext.createGain();
             this.mainVolume.gain.value = 0.2;
             this.mainVolume.connect(this.audioContext.destination);
+            this.modulatorOscillator = this.audioContext.createOscillator();
+            this.modulatorVolume = this.audioContext.createGain();
+            this.modulatorVolume.gain.value = 20;
+            this.modulatorOscillator.connect(this.modulatorVolume);
+            this.modulatorOscillator.start(0);
             for (var i = 0; i < this.FREQUENCIES.length; i++) {
                 var oscillator = this.audioContext.createOscillator();
-                oscillator.frequency.setTargetAtTime(this.FREQUENCIES[i], this.audioContext.currentTime, 0);
+                oscillator.frequency.setValueAtTime(this.FREQUENCIES[i], this.audioContext.currentTime);
                 oscillator.type = this.selectOscillatorWaveformBox.value;
                 oscillator.start(0);
                 this.oscillators.push(oscillator);
+                this.modulatorVolume.connect(oscillator.frequency);
             }
         }
         this.selectedMIDIInputPort = this.midiInputPorts[this.selectMIDIDeviceBox.value];
@@ -60,14 +66,14 @@ var VirtualPiano = (function () {
         var channel = data[0] & 0xF;
         var command = data[0] & ~0xF;
         switch (command) {
-            case 1:
-                this.setModulation(data[2]);
-                break;
             case 0x80:
                 this.noteOff(data[1], data[2]);
                 break;
             case 0x90:
                 this.noteOn(data[1], data[2]);
+                break;
+            case 0xB0:
+                this.setModulation(data[2]);
                 break;
             case 0xE0:
                 this.setBend(data[1], data[2]);
@@ -92,6 +98,7 @@ var VirtualPiano = (function () {
         }
     };
     VirtualPiano.prototype.setModulation = function (value) {
+        this.modulatorOscillator.frequency.value = value * 6 / 127;
     };
     VirtualPiano.prototype.updateMIDISelectBox = function () {
         this.selectMIDIDeviceBox.innerHTML = '';
