@@ -6,6 +6,7 @@ var VirtualPiano = (function () {
         this.selectBendRangeBox = document.getElementById('select-bend-range');
         this.selectOscillatorWaveformBox = document.getElementById('select-oscillator-waveform');
         this.bendRange = 2 * 128;
+        this.currentBend = 0;
         this.midiInputPorts = [];
         this.oscillators = [];
         this.activeOscillators = [];
@@ -81,6 +82,7 @@ var VirtualPiano = (function () {
         }
     };
     VirtualPiano.prototype.noteOn = function (note, force) {
+        this.oscillators[note].detune.setValueAtTime(this.currentBend, this.audioContext.currentTime);
         this.oscillators[note].connect(this.mainVolume);
         this.activeOscillators.push(note);
     };
@@ -92,6 +94,7 @@ var VirtualPiano = (function () {
     VirtualPiano.prototype.setBend = function (highNibble, lowNibble) {
         var combination = (lowNibble << 7) | highNibble;
         var bend = (combination - 8192) * (this.bendRange * 100 / 127) / 8192;
+        this.currentBend = bend;
         for (var _i = 0, _a = this.activeOscillators; _i < _a.length; _i++) {
             var oscillator = _a[_i];
             this.oscillators[oscillator].detune.setValueAtTime(bend, this.audioContext.currentTime);
