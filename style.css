@@ -1,0 +1,26 @@
+
+#piano {
+    border: black solid 1px;
+}
+
+#piano div {
+    display:inline-block;
+    position: relative;
+    width:13px;
+}
+
+
+
+.black-key {
+    background-color:black;
+    height: 30px;
+}
+
+.white-key {
+    background-color:white;
+    height:50px;
+}
+
+.pressed-key {
+    background-color:red;
+}
