@@ -9,6 +9,7 @@ class VirtualPiano {
     private visualPiano = <HTMLDivElement>document.getElementById('piano');
 
     private bendRange = 2 * 128; // 2 semitones
+    private currentBend = 0;
 
 
     private midiInputPorts: WebMidi.MIDIInput[] = [];
@@ -121,8 +122,8 @@ class VirtualPiano {
 
 
     private noteOn(note: number, force: number): void {
-        this.visualPiano.children[note].classList.add('pressed-key');
-        
+        this.oscillators[note].detune.setValueAtTime(this.currentBend, this.audioContext.currentTime); // bend can be done before a note is played
+        this.visualPiano.children[note].classList.add('pressed-key'); 
         this.oscillators[note].connect(this.mainVolume);
         this.activeOscillators.push(note);
     }
@@ -133,12 +134,12 @@ class VirtualPiano {
         this.oscillators[note].disconnect(this.mainVolume);
         this.oscillators[note].detune.setValueAtTime(0, this.audioContext.currentTime); // remove all effects
         this.activeOscillators.splice(this.activeOscillators.indexOf(note), 1);
-
     }
 
     private setBend(highNibble: number, lowNibble: number) {
         const combination = (lowNibble << 7) | highNibble;
         const bend = (combination - 8192) * (this.bendRange * 100 / 127) / 8192;
+        this.currentBend = bend;
         for (const oscillator of this.activeOscillators) {
             this.oscillators[oscillator].detune.setValueAtTime(bend, this.audioContext.currentTime);
         }
