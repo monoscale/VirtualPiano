@@ -5,9 +5,14 @@ var VirtualPiano = (function () {
         this.selectMIDIDeviceBox = document.getElementById('select-midi');
         this.selectBendRangeBox = document.getElementById('select-bend-range');
         this.selectOscillatorWaveformBox = document.getElementById('select-oscillator-waveform');
+        this.buttonStartRecording = document.getElementById('button-start-record');
+        this.buttonStopRecording = document.getElementById('button-stop-record');
+        this.buttonPlaybackRecording = document.getElementById('button-playback');
         this.visualPiano = document.getElementById('piano');
         this.bendRange = 2 * 128;
         this.currentBend = 0;
+        this.isRecording = false;
+        this.recording = [];
         this.midiInputPorts = [];
         this.oscillators = [];
         this.activeOscillators = [];
@@ -27,6 +32,9 @@ var VirtualPiano = (function () {
         this.selectMIDIDeviceBox.onchange = function () { return _this.selectMIDIInputPort(); };
         this.selectBendRangeBox.onchange = function () { return _this.setBendRange(); };
         this.selectOscillatorWaveformBox.onchange = function () { return _this.setWaveForm(); };
+        this.buttonStartRecording.onclick = function () { return _this.startRecording(); };
+        this.buttonStopRecording.onclick = function () { return _this.stopRecording(); };
+        this.buttonPlaybackRecording.onclick = function () { return _this.playBackRecording(); };
         for (var i = 0; i < 127; i++) {
             var key = document.createElement('div');
             key.id = i.toString();
@@ -35,17 +43,26 @@ var VirtualPiano = (function () {
             this.visualPiano.appendChild(key);
         }
     };
+    VirtualPiano.prototype.playBackRecording = function () {
+    };
+    VirtualPiano.prototype.startRecording = function () {
+        this.recording = [];
+        this.isRecording = true;
+    };
+    VirtualPiano.prototype.stopRecording = function () {
+        this.isRecording = false;
+    };
     VirtualPiano.prototype.setWaveForm = function () {
         for (var _i = 0, _a = this.oscillators; _i < _a.length; _i++) {
             var oscillator = _a[_i];
             oscillator.type = this.selectOscillatorWaveformBox.value;
         }
     };
-    VirtualPiano.prototype.requestMIDIAccessReject = function (exception) {
-        alert(exception);
-    };
     VirtualPiano.prototype.setBendRange = function () {
         this.bendRange = parseInt(this.selectBendRangeBox.value) * 128;
+    };
+    VirtualPiano.prototype.requestMIDIAccessReject = function (exception) {
+        alert(exception);
     };
     VirtualPiano.prototype.selectMIDIInputPort = function () {
         var _this = this;
@@ -90,6 +107,9 @@ var VirtualPiano = (function () {
                 this.setBend(data[1], data[2]);
                 break;
         }
+        if (this.isRecording) {
+            this.recording.push(e);
+        }
     };
     VirtualPiano.prototype.noteOn = function (note, force) {
         this.oscillators[note].detune.setValueAtTime(this.currentBend, this.audioContext.currentTime);
@@ -97,7 +117,7 @@ var VirtualPiano = (function () {
         this.oscillators[note].connect(this.mainVolume);
         this.activeOscillators.push(note);
     };
-    VirtualPiano.prototype.noteOff = function (note, force) {
+    VirtualPiano.prototype.noteOff = function (note, velocity) {
         this.visualPiano.children[note].classList.remove('pressed-key');
         this.oscillators[note].disconnect(this.mainVolume);
         this.oscillators[note].detune.setValueAtTime(0, this.audioContext.currentTime);
