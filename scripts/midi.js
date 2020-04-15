@@ -10,6 +10,8 @@ var VirtualPiano = (function () {
         this.buttonStartRecording = document.getElementById('button-start-record');
         this.buttonStopRecording = document.getElementById('button-stop-record');
         this.buttonPlaybackRecording = document.getElementById('button-playback');
+        this.knobMainVolume = document.getElementById('knob-master-volume');
+        this.knobMainVolumeIndex = document.getElementById('knob-master-volume-index');
         this.visualPiano = document.getElementById('piano');
         this.bendRange = 2 * 128;
         this.currentBend = 0;
@@ -36,6 +38,7 @@ var VirtualPiano = (function () {
         this.buttonStartRecording.onclick = function () { return _this.startRecording(); };
         this.buttonStopRecording.onclick = function () { return _this.stopRecording(); };
         this.buttonPlaybackRecording.onclick = function () { return _this.playBackRecording(); };
+        this.knobMainVolume.onmousedown = function () { return _this.enableVolumeSelection(); };
         var _loop_1 = function (waveform) {
             var circle = document.getElementById('oscillator-waveform-select-' + waveform);
             circle.onclick = function () { return _this.setWaveForm(circle); };
@@ -47,6 +50,7 @@ var VirtualPiano = (function () {
             _loop_1(waveform);
         }
         this.activeOscillatorWaveform = this.oscillatorWaveforms[0];
+        this.selectOscillatorWaveFormCircles[0].classList.add('active');
         for (var i = 0; i < 127; i++) {
             var key = document.createElement('div');
             key.id = i.toString();
@@ -54,6 +58,23 @@ var VirtualPiano = (function () {
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }
+    };
+    VirtualPiano.prototype.enableVolumeSelection = function () {
+        var _this = this;
+        var knobRect = this.knobMainVolume.getBoundingClientRect();
+        var circleRadius = this.knobMainVolume.r.baseVal.value;
+        window.onmousemove = function (event) {
+            var centerX = knobRect.x + circleRadius;
+            var centerY = knobRect.y + circleRadius;
+            var degree = 180 * Math.atan((centerY - event.clientY) / (event.clientX - centerX));
+            var x = 30 * Math.cos(degree);
+            var y = 30 * Math.sin(degree);
+            _this.knobMainVolumeIndex.x2.baseVal.value = x;
+            _this.knobMainVolumeIndex.y2.baseVal.value = y;
+        };
+        window.onmouseup = function () {
+            window.onmousemove = undefined;
+        };
     };
     VirtualPiano.prototype.playBackRecording = function () {
     };
@@ -87,7 +108,7 @@ var VirtualPiano = (function () {
         if (this.audioContext == null) {
             this.audioContext = new AudioContext();
             this.mainVolume = this.audioContext.createGain();
-            this.mainVolume.gain.value = 0.2;
+            this.mainVolume.gain.value = 0.5;
             this.mainVolume.connect(this.audioContext.destination);
             this.modulatorOscillator = this.audioContext.createOscillator();
             this.modulatorVolume = this.audioContext.createGain();

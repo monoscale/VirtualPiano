@@ -15,6 +15,9 @@ class VirtualPiano {
     private buttonStopRecording = <HTMLButtonElement>document.getElementById('button-stop-record');
     private buttonPlaybackRecording = <HTMLButtonElement>document.getElementById('button-playback');
 
+    private knobMainVolume = <SVGCircleElement>(<unknown>document.getElementById('knob-master-volume'));
+    private knobMainVolumeIndex = <SVGLineElement>(<unknown>document.getElementById('knob-master-volume-index'));
+
 
     private visualPiano = <HTMLDivElement>document.getElementById('piano');
 
@@ -64,23 +67,49 @@ class VirtualPiano {
         this.buttonStartRecording.onclick = () => this.startRecording();
         this.buttonStopRecording.onclick = () => this.stopRecording();
         this.buttonPlaybackRecording.onclick = () => this.playBackRecording();
+        this.knobMainVolume.onmousedown = () => this.enableVolumeSelection();
 
-        for(const waveform of this.oscillatorWaveforms){
+
+
+
+        for (const waveform of this.oscillatorWaveforms) {
             const circle = <SVGCircleElement>(<unknown>document.getElementById('oscillator-waveform-select-' + waveform));
             circle.onclick = () => this.setWaveForm(circle);
             this.selectOscillatorWaveFormCircles.push(circle);
         }
 
         this.activeOscillatorWaveform = this.oscillatorWaveforms[0];
+        this.selectOscillatorWaveFormCircles[0].classList.add('active');
 
         /* Initialize the visual piano keys */
         for (let i = 0; i < 127; i++) {
             const key = document.createElement('div');
             key.id = i.toString();
-            key.innerHTML = '&nbsp;';
+            key.innerHTML = '&nbsp;'; // to make an inline element have width
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }
+    }
+
+    private enableVolumeSelection(): void {
+        const knobRect = this.knobMainVolume.getBoundingClientRect();
+        const circleRadius = this.knobMainVolume.r.baseVal.value;
+        window.onmousemove = (event: MouseEvent) => {
+            const centerX = knobRect.x + circleRadius;
+            const centerY = knobRect.y + circleRadius;
+            const degree = 180 * Math.atan((centerY - event.clientY) / (event.clientX - centerX));
+            const x = 30 * Math.cos(degree);
+            const y = 30 * Math.sin(degree);
+            this.knobMainVolumeIndex.x2.baseVal.value = x;
+            this.knobMainVolumeIndex.y2.baseVal.value = y;
+
+
+        }
+
+        window.onmouseup = function () {
+            window.onmousemove = undefined;
+        }
+
     }
 
     private playBackRecording(): void {
@@ -96,8 +125,12 @@ class VirtualPiano {
         this.isRecording = false;
     }
 
+    /**
+     * Sets the current active waveform for the oscillator based on the circle UI element clicked.
+     * @param circle One of the four circle SVG elements.
+     */
     private setWaveForm(circle: SVGCircleElement): void {
-        for(const oscillatorCircle of this.selectOscillatorWaveFormCircles) {
+        for (const oscillatorCircle of this.selectOscillatorWaveFormCircles) {
             oscillatorCircle.classList.remove('active');
         }
         circle.classList.add('active');
@@ -127,7 +160,7 @@ class VirtualPiano {
         if (this.audioContext == null) {
             this.audioContext = new AudioContext();
             this.mainVolume = this.audioContext.createGain();
-            this.mainVolume.gain.value = 0.2;
+            this.mainVolume.gain.value = 0.5;
             this.mainVolume.connect(this.audioContext.destination);
 
             this.modulatorOscillator = this.audioContext.createOscillator();
@@ -148,7 +181,7 @@ class VirtualPiano {
         }
 
         this.selectedMIDIInputPort = this.midiInputPorts[this.selectMIDIDeviceBox.value];
-   
+
         this.selectedMIDIInputPort.onmidimessage = (e) => this.processMIDIMessage(e);
         console.log(this.selectedMIDIInputPort);
     }
@@ -227,7 +260,6 @@ class VirtualPiano {
         } else if (this.modulatorVolume.gain.value === 0) {
             this.modulatorVolume.gain.value = 20;
         }
-
     }
 
 

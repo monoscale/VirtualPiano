@@ -1,4 +1,6 @@
 
+
+
 #piano {
     border: black solid 3px;
 }
@@ -8,8 +10,6 @@
     position: relative;
     width:13px;
 }
-
-
 
 .black-key {
     background-color:black;
@@ -37,4 +37,8 @@
 
 #oscillator-waveform circle.active {
     fill:red;
+}
+
+#knob-master-volume {
+    cursor: pointer;
 }
