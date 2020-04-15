@@ -7,6 +7,10 @@ class VirtualPiano {
     private selectBendRangeBox = <HTMLSelectElement>document.getElementById('select-bend-range');
     private selectOscillatorWaveformBox = <HTMLSelectElement>document.getElementById('select-oscillator-waveform');
 
+    private oscillatorWaveforms: string[] = ['sine', 'sawtooth', 'square', 'triangle'];
+    private selectOscillatorWaveFormCircles: SVGCircleElement[] = [];
+    private activeOscillatorWaveform: string;
+
     private buttonStartRecording = <HTMLButtonElement>document.getElementById('button-start-record');
     private buttonStopRecording = <HTMLButtonElement>document.getElementById('button-stop-record');
     private buttonPlaybackRecording = <HTMLButtonElement>document.getElementById('button-playback');
@@ -57,13 +61,20 @@ class VirtualPiano {
         this.updateMIDISelectBox();
         this.selectMIDIDeviceBox.onchange = () => this.selectMIDIInputPort(); // the user must first interact with the site to allow an audioContext to be created, we achieve this by forcing the user to select a MIDI input device
         this.selectBendRangeBox.onchange = () => this.setBendRange();
-        this.selectOscillatorWaveformBox.onchange = () => this.setWaveForm();
         this.buttonStartRecording.onclick = () => this.startRecording();
         this.buttonStopRecording.onclick = () => this.stopRecording();
         this.buttonPlaybackRecording.onclick = () => this.playBackRecording();
 
+        for(const waveform of this.oscillatorWaveforms){
+            const circle = <SVGCircleElement>(<unknown>document.getElementById('oscillator-waveform-select-' + waveform));
+            circle.onclick = () => this.setWaveForm(circle);
+            this.selectOscillatorWaveFormCircles.push(circle);
+        }
+
+        this.activeOscillatorWaveform = this.oscillatorWaveforms[0];
+
         /* Initialize the visual piano keys */
-        for (var i = 0; i < 127; i++) {
+        for (let i = 0; i < 127; i++) {
             const key = document.createElement('div');
             key.id = i.toString();
             key.innerHTML = '&nbsp;';
@@ -85,9 +96,14 @@ class VirtualPiano {
         this.isRecording = false;
     }
 
-    private setWaveForm(): void {
+    private setWaveForm(circle: SVGCircleElement): void {
+        for(const oscillatorCircle of this.selectOscillatorWaveFormCircles) {
+            oscillatorCircle.classList.remove('active');
+        }
+        circle.classList.add('active');
+        this.activeOscillatorWaveform = circle.id.split('-')[3];
         for (const oscillator of this.oscillators) {
-            oscillator.type = <OscillatorType>this.selectOscillatorWaveformBox.value;
+            oscillator.type = <OscillatorType>this.activeOscillatorWaveform;
         }
     }
 
@@ -123,18 +139,18 @@ class VirtualPiano {
             for (var i = 0; i < this.FREQUENCIES.length; i++) {
                 let oscillator = this.audioContext.createOscillator();
                 oscillator.frequency.setValueAtTime(this.FREQUENCIES[i], this.audioContext.currentTime);
-                oscillator.type = <OscillatorType>this.selectOscillatorWaveformBox.value;
-
+                oscillator.type = <OscillatorType>this.activeOscillatorWaveform;
                 oscillator.start(0);
                 this.oscillators.push(oscillator);
 
                 this.modulatorVolume.connect(oscillator.frequency);
-
             }
         }
 
         this.selectedMIDIInputPort = this.midiInputPorts[this.selectMIDIDeviceBox.value];
+   
         this.selectedMIDIInputPort.onmidimessage = (e) => this.processMIDIMessage(e);
+        console.log(this.selectedMIDIInputPort);
     }
 
     /**
@@ -166,9 +182,10 @@ class VirtualPiano {
      */
     private noteOn(note: number, force: number): void {
         this.oscillators[note].detune.setValueAtTime(this.currentBend, this.audioContext.currentTime); // bend can be done before a note is played
-        this.visualPiano.children[note].classList.add('pressed-key');
         this.oscillators[note].connect(this.mainVolume);
         this.activeOscillators.push(note);
+
+        this.visualPiano.children[note].classList.add('pressed-key');
     }
 
     /**
@@ -177,11 +194,11 @@ class VirtualPiano {
      * @param force The velocity (value between 0 - 127) of the release. 
      */
     private noteOff(note: number, velocity: number): void {
-        this.visualPiano.children[note].classList.remove('pressed-key');
-
         this.oscillators[note].disconnect(this.mainVolume);
         this.oscillators[note].detune.setValueAtTime(0, this.audioContext.currentTime); // remove all effects
         this.activeOscillators.splice(this.activeOscillators.indexOf(note), 1);
+
+        this.visualPiano.children[note].classList.remove('pressed-key');
     }
 
     /**
@@ -205,10 +222,9 @@ class VirtualPiano {
      */
     private setModulation(value: number) {
         this.modulatorOscillator.frequency.value = value * 6 / 127; // max 6 hertz fluctuation
-        console.log(value);
         if (value === 0) {
             this.modulatorVolume.gain.value = 0
-        } else if(this.modulatorVolume.gain.value === 0) {
+        } else if (this.modulatorVolume.gain.value === 0) {
             this.modulatorVolume.gain.value = 20;
         }
 
@@ -236,4 +252,4 @@ class VirtualPiano {
 
 }
 
-new VirtualPiano();
+new VirtualPiano(); 

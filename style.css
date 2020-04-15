@@ -24,3 +24,17 @@
 .pressed-key {
     background-color:red;
 }
+
+
+#oscillator-waveform{
+    display:inline;
+    fill:white;
+}
+
+#oscillator-waveform circle {
+    cursor: pointer;
+}
+
+#oscillator-waveform circle.active {
+    fill:red;
+}
