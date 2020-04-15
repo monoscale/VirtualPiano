@@ -134,7 +134,6 @@ class VirtualPiano {
         }
 
         this.selectedMIDIInputPort = this.midiInputPorts[this.selectMIDIDeviceBox.value];
-        console.log(this.selectMIDIDeviceBox.selectedIndex)
         this.selectedMIDIInputPort.onmidimessage = (e) => this.processMIDIMessage(e);
     }
 
@@ -206,6 +205,13 @@ class VirtualPiano {
      */
     private setModulation(value: number) {
         this.modulatorOscillator.frequency.value = value * 6 / 127; // max 6 hertz fluctuation
+        console.log(value);
+        if (value === 0) {
+            this.modulatorVolume.gain.value = 0
+        } else if(this.modulatorVolume.gain.value === 0) {
+            this.modulatorVolume.gain.value = 20;
+        }
+
     }
 
 

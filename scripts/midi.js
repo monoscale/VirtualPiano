@@ -86,7 +86,6 @@ var VirtualPiano = (function () {
             }
         }
         this.selectedMIDIInputPort = this.midiInputPorts[this.selectMIDIDeviceBox.value];
-        console.log(this.selectMIDIDeviceBox.selectedIndex);
         this.selectedMIDIInputPort.onmidimessage = function (e) { return _this.processMIDIMessage(e); };
     };
     VirtualPiano.prototype.processMIDIMessage = function (e) {
@@ -134,6 +133,13 @@ var VirtualPiano = (function () {
     };
     VirtualPiano.prototype.setModulation = function (value) {
         this.modulatorOscillator.frequency.value = value * 6 / 127;
+        console.log(value);
+        if (value === 0) {
+            this.modulatorVolume.gain.value = 0;
+        }
+        else if (this.modulatorVolume.gain.value === 0) {
+            this.modulatorVolume.gain.value = 20;
+        }
     };
     VirtualPiano.prototype.updateMIDISelectBox = function () {
         this.selectMIDIDeviceBox.innerHTML = '';
