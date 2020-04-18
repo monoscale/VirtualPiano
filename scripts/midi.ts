@@ -3,18 +3,31 @@
 
 class VirtualPiano {
     /* HTML BINDINGS */
-    private selectMIDIDeviceBox = <HTMLSelectElement>document.getElementById('select-midi');
-    private selectBendRangeBox = <HTMLSelectElement>document.getElementById('select-bend-range');
-    private selectOscillatorWaveformBox = <HTMLSelectElement>document.getElementById('select-oscillator-waveform');
 
+    // A container for the whole application
+    private app = <HTMLDivElement>document.getElementById('app');
+
+    // A container for showing system messages
+    private messages = <HTMLParagraphElement>document.getElementById('messages');
+
+    // The selection box where users can select their midi input device
+    private selectMIDIDeviceBox = <HTMLSelectElement>document.getElementById('select-midi');
+    // The selection box where users can set the bend range of the pitch wheel
+    private selectBendRangeBox = <HTMLSelectElement>document.getElementById('select-bend-range');
+
+    // The four waveforms possible for the oscillator
     private oscillatorWaveforms: string[] = ['sine', 'sawtooth', 'square', 'triangle'];
-    private selectOscillatorWaveFormCircles: SVGCircleElement[] = [];
+    // The four circle buttons to select the waveform
+    private selectOscillatorWaveFormCircles: SVGCircleElement[] = []
+    // The current active oscillator waveform. One of the four strings defined above
     private activeOscillatorWaveform: string;
+
 
     private buttonStartRecording = <HTMLButtonElement>document.getElementById('button-start-record');
     private buttonStopRecording = <HTMLButtonElement>document.getElementById('button-stop-record');
     private buttonPlaybackRecording = <HTMLButtonElement>document.getElementById('button-playback');
 
+    // The 
     private knobMainVolume = <SVGCircleElement>(<unknown>document.getElementById('knob-master-volume'));
     private knobMainVolumeIndex = <SVGLineElement>(<unknown>document.getElementById('knob-master-volume-index'));
 
@@ -70,8 +83,6 @@ class VirtualPiano {
         this.knobMainVolume.onmousedown = () => this.enableVolumeSelection();
 
 
-
-
         for (const waveform of this.oscillatorWaveforms) {
             const circle = <SVGCircleElement>(<unknown>document.getElementById('oscillator-waveform-select-' + waveform));
             circle.onclick = () => this.setWaveForm(circle);
@@ -89,21 +100,32 @@ class VirtualPiano {
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }
+
+        this.app.attributes.removeNamedItem('hidden');
     }
 
     private enableVolumeSelection(): void {
         const knobRect = this.knobMainVolume.getBoundingClientRect();
         const circleRadius = this.knobMainVolume.r.baseVal.value;
+        const centerX = knobRect.x + circleRadius; // THE CIRCLE CENTER RELATIVE TO THE WHOLE WEB PAGE
+        const centerY = knobRect.y + circleRadius; // THE CIRCLE CENTER RELATIVE TO THE WHOLE WEB PAGE
+
         window.onmousemove = (event: MouseEvent) => {
-            const centerX = knobRect.x + circleRadius;
-            const centerY = knobRect.y + circleRadius;
-            const degree = 180 * Math.atan((centerY - event.clientY) / (event.clientX - centerX));
-            const x = 30 * Math.cos(degree);
-            const y = 30 * Math.sin(degree);
-            this.knobMainVolumeIndex.x2.baseVal.value = x;
-            this.knobMainVolumeIndex.y2.baseVal.value = y;
 
 
+            const radians = Math.atan((centerY - event.pageY) / (centerX - event.pageX));
+            const x = 30 * Math.cos(radians) + centerX;
+            const y = 30 * Math.sin(radians) + centerY;
+
+            const div = <HTMLDivElement>document.createElement('div');
+
+            const svgX = x;
+            const svgY = y / 219 * 40;
+
+            console.log(svgX, svgY);
+
+            this.knobMainVolumeIndex.x2.baseVal.value = svgX;
+            this.knobMainVolumeIndex.y2.baseVal.value = svgY;
         }
 
         window.onmouseup = function () {
@@ -149,7 +171,7 @@ class VirtualPiano {
      * @param exception 
      */
     private requestMIDIAccessReject(exception: any): void {
-        alert(exception);
+        this.messages.innerHTML = exception;
     }
 
     /**

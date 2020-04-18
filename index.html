@@ -9,78 +9,119 @@
 </head>
 
 <body>
-    Select MIDI input: <select id="select-midi"></select>
-    Bend range:
-    <select id="select-bend-range">
-        <option value="0">0</option>
-        <option value="1">1</option>
-        <option value="2" selected>2</option>
-        <option value="3">3</option>
-        <option value="4">4</option>
-        <option value="5">5</option>
-        <option value="6">6</option>
-        <option value="7">7</option>
-        <option value="8">8</option>
-        <option value="9">9</option>
-        <option value="10">10</option>
-        <option value="11">11</option>
-        <option value="12">12</option>
-    </select>
-    <button id="button-start-record">Start recording</button>
-    <button id="button-stop-record">Stop recording</button>
-    <button id="button-playback">Playback recording</button>
-    <br>
+    <p id="messages"></p>
 
-    <div id="oscillator-waveform">
-        <svg width="30" height="40">
-            <g id="oscillator-waveform-square" stroke="black">
-                <line x1="5" y1="15" x2="5" y2="5" />
-                <line x1="5" y1="5" x2="15" y2="5" />
-                <line x1="15" y1="5" x2="15" y2="15" />
-                <line x1="15" y1="15" x2="25" y2="15" />
-                <line x1="25" y1="15" x2="25" y2="5" />
-                <circle id="oscillator-waveform-select-square" cx="15" cy="30" r="5"></circle>
-            </g>
-        </svg>
-        <svg width="30" height="40">
-            <g id="oscillator-waveform-sawtooth" stroke="black">
-                <line x1="5" y1="15" x2="15" y2="5" />
-                <line x1="15" y1="5" x2="15" y2="15" />
-                <line x1="15" y1="15" x2="25" y2="5" />
-                <line x1="25" y1="5" x2="25" y2="15" />
-                <circle id="oscillator-waveform-select-sawtooth" cx="15" cy="30" r="5"></circle>
-            </g>
-        </svg>
-        <svg width="30" height="40">
-            <g id="oscillator-waveform-triangle" stroke="black">
-                <line x1="7.5" y1="10" x2="10" y2="5" />
-                <line x1="10" y1="5" x2="15" y2="15" />
-                <line x1="15" y1="15" x2="20" y2="5" />
-                <line x1="20" y1="5" x2="25" y2="15" />
-                <line x1="25" y1="15" x2="27.5" y2="10" />
-                <circle id="oscillator-waveform-select-triangle" cx="15" cy="30" r="5"></circle>
-            </g>
-        </svg>
-        <svg width="30" height="40">
-            <g id="oscillator-waveform-sine" stroke="black">
-                <path d="M5,15 C15,3 15,3 25,15" />
-                <circle id="oscillator-waveform-select-sine" cx="15" cy="30" r="5"></circle>
-            </g>
-        </svg>
+
+    <div id="app" hidden>
+        Select MIDI input: <select id="select-midi"></select>
+        Bend range:
+        <select id="select-bend-range">
+            <option value="0">0</option>
+            <option value="1">1</option>
+            <option value="2" selected>2</option>
+            <option value="3">3</option>
+            <option value="4">4</option>
+            <option value="5">5</option>
+            <option value="6">6</option>
+            <option value="7">7</option>
+            <option value="8">8</option>
+            <option value="9">9</option>
+            <option value="10">10</option>
+            <option value="11">11</option>
+            <option value="12">12</option>
+        </select>
+        <button id="button-start-record">Start recording</button>
+        <button id="button-stop-record">Stop recording</button>
+        <button id="button-playback">Playback recording</button>
         <br>
+
+        <div id="oscillator-waveform">
+
+
+
+            <svg width="120" height="40" xmlns="http://www.w3.org/2000/svg" xmlns:xlink="http://www.w3.org/1999/xlink"
+                stroke="black">
+                <symbol id="oscillator-waveform-select" viewBox="45 0 30 40">
+                    <!-- WHY THE VALUE 45 for min-x -->
+                    <circle cx="15" cy="30" r="5"></circle>
+                </symbol>
+
+                <symbol id="oscillator-waveform-square" viewBox="45 0 30 40">
+                    <line x1="5" y1="15" x2="5" y2="5" />
+                    <line x1="5" y1="5" x2="15" y2="5" />
+                    <line x1="15" y1="5" x2="15" y2="15" />
+                    <line x1="15" y1="15" x2="25" y2="15" />
+                    <line x1="25" y1="15" x2="25" y2="5" />
+                </symbol>
+
+                <symbol id="oscillator-waveform-sawtooth" viewBox="45 0 30 40">
+                    <line x1="5" y1="15" x2="15" y2="5" />
+                    <line x1="15" y1="5" x2="15" y2="15" />
+                    <line x1="15" y1="15" x2="25" y2="5" />
+                    <line x1="25" y1="5" x2="25" y2="15" />
+                </symbol>
+
+                <symbol id="oscillator-waveform-triangle" viewBox="45 0 30 40 ">
+                    <line x1="7.5" y1="10" x2="10" y2="5" />
+                    <line x1="10" y1="5" x2="15" y2="15" />
+                    <line x1="15" y1="15" x2="20" y2="5" />
+                    <line x1="20" y1="5" x2="25" y2="15" />
+                    <line x1="25" y1="15" x2="27.5" y2="10" />
+                </symbol>
+
+                <symbol id="oscillator-waveform-sine" viewBox="45 0 30 40">
+                    <path d="M5,15 C15,3 15,3 25,15" />
+                </symbol>
+
+
+                <g>
+                    <use xlink:href="#oscillator-waveform-square" x="0" />
+                    <use id="oscillator-waveform-select-square" xlink:href="#oscillator-waveform-select" x="0" />
+                </g>
+
+                <g>
+                    <use xlink:href="#oscillator-waveform-sawtooth" x="30" />
+                    <use id="oscillator-waveform-select-sawtooth" xlink:href="#oscillator-waveform-select" x="30" />
+                </g>
+
+                <g>
+                    <use xlink:href="#oscillator-waveform-triangle" x="60" />
+                    <use id="oscillator-waveform-select-triangle" xlink:href="#oscillator-waveform-select" x="60" />
+                </g>
+
+                <g>
+                    <use xlink:href="#oscillator-waveform-sine" x="90" />
+                    <use id="oscillator-waveform-select-sine" xlink:href="#oscillator-waveform-select" x="90" />
+                </g>
+
+            </svg>
+
+            <br>
+        </div>
+
+
+        <svg width="60" height="60">
+            <g fill="black">
+                <circle id="knob-master-volume" cx="30" cy="30" r="30"></circle>
+                <line id="knob-master-volume-index" x1="30" y1="30" x2="30" y2="0" stroke="red" stroke-width="3px">
+                </line>
+            </g>
+        </svg>
+        <div id="piano">
+
+        </div>
+
+
+
+
+
     </div>
 
-    <div id="piano">
-
-    </div>
 
 
-    <svg width="60" height="80">
-        <g fill="black">
-            <circle id="knob-master-volume" cx="30" cy="40" r="30"></circle>
-            <line id="knob-master-volume-index" x1="30" y1="40" x2="30" y2="10" stroke="white"></line>
-        </g>
-    </svg>
+
+
+
     <script src="scripts/midi.js"></script>
 </body>
 

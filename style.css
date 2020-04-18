@@ -1,28 +1,48 @@
+:root {
+    --primary-color: white;
+    --secondary-color: black;
+    
+    --black-key-height: 60px;
+    --white-key-height: calc(5/3*var(--black-key-height));
+}
+
+body {
+    background-color: var(--main-bg-color);
+}
+
+#messages {
+    color:red;
+}
 
 
 
 #piano {
-    border: black solid 3px;
+    display:flex;
+    flex-direction:row;
+    justify-content: space-evenly;
+
+
+    border: black solid 10px;
+    border-radius: 5px;
+    
 }
 
 #piano div {
-    display:inline-block;
-    position: relative;
-    width:13px;
+    width:100%;
 }
 
 .black-key {
-    background-color:black;
-    height: 60px;
+    background-color: black;
+    height: var(--black-key-height);
 }
 
 .white-key {
-    background-color:white;
-    height:100px;
+    background-color: white;
+    height:var(--white-key-height);
 }
 
 .pressed-key {
-    background-color:red;
+    background-color:rgb(76, 10, 131);
 }
 
 
@@ -35,7 +55,7 @@
     cursor: pointer;
 }
 
-#oscillator-waveform circle.active {
+#oscillator-waveform .active {
     fill:red;
 }
 

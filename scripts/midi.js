@@ -2,9 +2,10 @@
 var VirtualPiano = (function () {
     function VirtualPiano() {
         var _this = this;
+        this.app = document.getElementById('app');
+        this.messages = document.getElementById('messages');
         this.selectMIDIDeviceBox = document.getElementById('select-midi');
         this.selectBendRangeBox = document.getElementById('select-bend-range');
-        this.selectOscillatorWaveformBox = document.getElementById('select-oscillator-waveform');
         this.oscillatorWaveforms = ['sine', 'sawtooth', 'square', 'triangle'];
         this.selectOscillatorWaveFormCircles = [];
         this.buttonStartRecording = document.getElementById('button-start-record');
@@ -58,19 +59,24 @@ var VirtualPiano = (function () {
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }
+        this.app.attributes.removeNamedItem('hidden');
     };
     VirtualPiano.prototype.enableVolumeSelection = function () {
         var _this = this;
         var knobRect = this.knobMainVolume.getBoundingClientRect();
         var circleRadius = this.knobMainVolume.r.baseVal.value;
+        var centerX = knobRect.x + circleRadius;
+        var centerY = knobRect.y + circleRadius;
         window.onmousemove = function (event) {
-            var centerX = knobRect.x + circleRadius;
-            var centerY = knobRect.y + circleRadius;
-            var degree = 180 * Math.atan((centerY - event.clientY) / (event.clientX - centerX));
-            var x = 30 * Math.cos(degree);
-            var y = 30 * Math.sin(degree);
-            _this.knobMainVolumeIndex.x2.baseVal.value = x;
-            _this.knobMainVolumeIndex.y2.baseVal.value = y;
+            var radians = Math.atan((centerY - event.pageY) / (centerX - event.pageX));
+            var x = 30 * Math.cos(radians) + centerX;
+            var y = 30 * Math.sin(radians) + centerY;
+            var div = document.createElement('div');
+            var svgX = x;
+            var svgY = y / 219 * 40;
+            console.log(svgX, svgY);
+            _this.knobMainVolumeIndex.x2.baseVal.value = svgX;
+            _this.knobMainVolumeIndex.y2.baseVal.value = svgY;
         };
         window.onmouseup = function () {
             window.onmousemove = undefined;
@@ -101,7 +107,7 @@ var VirtualPiano = (function () {
         this.bendRange = parseInt(this.selectBendRangeBox.value) * 128;
     };
     VirtualPiano.prototype.requestMIDIAccessReject = function (exception) {
-        alert(exception);
+        this.messages.innerHTML = exception;
     };
     VirtualPiano.prototype.selectMIDIInputPort = function () {
         var _this = this;
