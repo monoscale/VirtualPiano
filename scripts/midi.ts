@@ -82,7 +82,6 @@ class VirtualPiano {
         this.buttonPlaybackRecording.onclick = () => this.playBackRecording();
         this.knobMainVolume.onmousedown = () => this.enableVolumeSelection();
 
-
         for (const waveform of this.oscillatorWaveforms) {
             const circle = <SVGCircleElement>(<unknown>document.getElementById('oscillator-waveform-select-' + waveform));
             circle.onclick = () => this.setWaveForm(circle);
@@ -96,7 +95,6 @@ class VirtualPiano {
         for (let i = 0; i < 127; i++) {
             const key = document.createElement('div');
             key.id = i.toString();
-            key.innerHTML = '&nbsp;'; // to make an inline element have width
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }

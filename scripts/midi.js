@@ -55,7 +55,6 @@ var VirtualPiano = (function () {
         for (var i = 0; i < 127; i++) {
             var key = document.createElement('div');
             key.id = i.toString();
-            key.innerHTML = '&nbsp;';
             key.classList.add(this.KEY_COLORS[i % 12] + '-key');
             this.visualPiano.appendChild(key);
         }
